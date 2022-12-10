@@ -26,14 +26,6 @@ int f_inserir(Fila_FIFO **f, int chave, int valor) {
         *f = (*f)->prox;
     }
 
-    if ((*f)->chave == chave)
-        chave_repetida = 1;
-
-    if (chave_repetida) {
-        *f = inicio_fila;
-        return 0;
-    }
-
     if (*f == NULL) {
         *f = novo_elemento;
     } else {
@@ -46,17 +38,15 @@ int f_inserir(Fila_FIFO **f, int chave, int valor) {
 
 int f_obter_proxima_chave(Fila_FIFO **f) {
     int chave;
-    Fila_FIFO *proximo;
+    Fila_FIFO *inicio;
 
     if (*f == NULL)
         return -1;
 
-    proximo = *f;
-    chave = proximo->chave;
-    
-    *f = (*f)->prox;
-    free(proximo);
-    proximo = NULL;
+    chave = (*f)->chave;
+    inicio = (*f)->prox;
+    free(*f);
+    *f = inicio;
 
     return chave;
 }
