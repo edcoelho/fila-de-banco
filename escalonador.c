@@ -187,7 +187,6 @@ void e_rodar(Escalonador *e, char *nome_arq_in, char *nome_arq_out) {
                     fprintf(arq, "T = %d min: Caixa %i chama da categoria %s cliente da conta %d para realizar %d operacao(oes).\n", e->relogio, i+1, classe == 1 ? "Premium" : classe == 2 ? "Ouro" : classe == 3 ? "Prata" : classe == 4 ? "Bronze" : "Leezu", num_conta, num_oper);
 
                     e->timers_caixas[i] = num_oper * e->delta_t;
-                    printf("teste%d %d %d %d %d\n", e_consultar_qtde_clientes(e), num_conta, classe, num_oper, e->timers_caixas[i]);
                     log_registrar(&e->registrador, num_conta, classe, e->timers_caixas[i], i+1);
                 }
             }
@@ -206,11 +205,11 @@ void e_rodar(Escalonador *e, char *nome_arq_in, char *nome_arq_out) {
 
     fprintf(arq, "Tempo total de atendimento: %d\n", e->relogio);
     for (i = 0; i < 5; i++) {
-        fprintf(arq, "Tempo medio de espera dos %d clientes %s: %.2f\n", log_obter_contagem_por_classe(&e->registrador, i+1), i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu");
+        fprintf(arq, "Tempo medio de espera dos %d clientes %s: %.2f\n", log_obter_contagem_por_classe(&e->registrador, i+1), i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu", log_media_por_classe(&e->registrador, i+1));
 
         media_operacoes = (log_obter_soma_por_classe(&e->registrador, i+1) / e->delta_t) / log_obter_contagem_por_classe(&e->registrador, i+1);
 
-        fprintf(arq, "Quantidade media de operacoes por cliente %s = %d\n", i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu", media_operacoes);
+        fprintf(arq, "Quantidade media de operacoes por cliente %s = %.2f\n", i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu", media_operacoes);
     }
     for (i = 0; i < e->quant_caixas; i++)
         fprintf(arq, "O caixa de número %d atendeu %d clientes.\n", i+1, cont_clientes_caixa[i]);
