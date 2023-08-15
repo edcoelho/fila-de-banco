@@ -15,8 +15,8 @@ int main(int narg, char *argv[]) {
         strcat(arq_saida, buf);
         e_rodar(escalonador, argv[1], arq_saida);
     } else {
-        printf("Nenhum arquivo entrado!\nSintaxe: ./main [ARQUIVO]\n");
-        EXIT_FAILURE;
+        printf("Nenhum arquivo encontrado!\nSintaxe: ./main [ARQUIVO]\n");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

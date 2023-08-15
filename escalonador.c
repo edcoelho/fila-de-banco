@@ -168,8 +168,13 @@ void e_rodar(Escalonador *e, char *nome_arq_in, char *nome_arq_out) {
     float media_operacoes;
     FILE *arq;
 
+    // Inicializa a configuração do escalonador
     if (!e_conf_por_arquivo(e, nome_arq_in))
         printf("Erro ao ler o arquivo de configuração!\n");
+
+    // Inicializa o vetor cont_clientes_caixa
+    for (i = 0; i < e->quant_caixas; i++)
+        cont_clientes_caixa[i] = 0;
 
 // ----- ESCRITA DO ARQUIVO DE SAÍDA -----
 
@@ -187,7 +192,7 @@ void e_rodar(Escalonador *e, char *nome_arq_in, char *nome_arq_out) {
                     fprintf(arq, "T = %d min: Caixa %i chama da categoria %s cliente da conta %d para realizar %d operacao(oes).\n", e->relogio, i+1, classe == 1 ? "Premium" : classe == 2 ? "Ouro" : classe == 3 ? "Prata" : classe == 4 ? "Bronze" : "Leezu", num_conta, num_oper);
 
                     e->timers_caixas[i] = num_oper * e->delta_t;
-                    log_registrar(&e->registrador, num_conta, classe, e->timers_caixas[i], i+1);
+                    log_registrar(&e->registrador, num_conta, classe, e->relogio, i+1, num_oper);
                 }
             }
         }
@@ -203,14 +208,20 @@ void e_rodar(Escalonador *e, char *nome_arq_in, char *nome_arq_out) {
             tempo_sobrando = e->timers_caixas[i];
     e->relogio += tempo_sobrando;
 
-    fprintf(arq, "Tempo total de atendimento: %d\n", e->relogio);
-    for (i = 0; i < 5; i++) {
-        fprintf(arq, "Tempo medio de espera dos %d clientes %s: %.2f\n", log_obter_contagem_por_classe(&e->registrador, i+1), i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu", log_media_por_classe(&e->registrador, i+1));
+    fprintf(arq, "Tempo total de atendimento: %d minutos.\n", e->relogio);
 
-        media_operacoes = (log_obter_soma_por_classe(&e->registrador, i+1) / e->delta_t) / log_obter_contagem_por_classe(&e->registrador, i+1);
+    // Exibe os tempos médios de espera por classe de clientes.
+    for (i = 0; i < 5; i++)
+        fprintf(arq, "Tempo medio de espera dos %d clientes %s: %.2f\n", log_obter_contagem_por_classe(&e->registrador, i+1), i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Comuns", log_media_por_classe(&e->registrador, i+1));
+
+    // Exibe as quantidades médias de operações por classe de cliente.
+    for (i = 0; i < 5; i++) {
+        media_operacoes = (float) log_obter_soma_operacoes_por_classe(&e->registrador, i+1) / log_obter_contagem_por_classe(&e->registrador, i+1);
 
         fprintf(arq, "Quantidade media de operacoes por cliente %s = %.2f\n", i+1 == 1 ? "Premium" : i+1 == 2 ? "Ouro" : i+1 == 3 ? "Prata" : i+1 == 4 ? "Bronze" : "Leezu", media_operacoes);
     }
+
+    // Exibe a quantidade de clientes atendidos por cada caixa.
     for (i = 0; i < e->quant_caixas; i++)
         fprintf(arq, "O caixa de número %d atendeu %d clientes.\n", i+1, cont_clientes_caixa[i]);
 
